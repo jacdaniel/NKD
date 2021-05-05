@@ -69,6 +69,7 @@ int opMemCpyCHS(void* dst, void* src, size_t size, int dataFormat)
 
 
 
+<<<<<<< HEAD
 template <typename T> int opYMinusEqualsX(T* y, T* x, size_t size)
 {
 	for (size_t add = 0; add < size; add++)
@@ -87,3 +88,5 @@ int opYMinusEqualsX_CPU(void* y, void* x, size_t size, int dataFormat)
 }
 
 
+=======
+>>>>>>> e381ca5... Initial commit

@@ -36,7 +36,7 @@ private:
 	long nbIter, size0;
 	void* rhs, * x;
 	ConjugateGradientCallBack* callBack;
-	double dot(void* f, long size, void* g);
+	double dot(void* f, size_t size, void* g);
 	PARAM* param;
 
 	int paramInit();

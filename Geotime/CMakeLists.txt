@@ -56,7 +56,12 @@ Geotime
  "run/runConjugateGradient.cpp" "run/runConjugateGradient.h" 
  "src/Arithmetic/arithmetic_YEqualsXPlusAlphaTimesY_CPU.h" 
  "src/Arithmetic/arithmetic_YEqualsXPlusAlphaTimesY_CPU.cpp" 
- "src/XData/xData.h" "src/XData/xData.cpp" "run/runXDataTest.h" "run/runXDataTest.cpp" "src/MemoryProcessing/OpMalloc_CPU.h" "src/MemoryProcessing/OpMalloc_CPU.cpp")
+
+# "src/XData/xData.h" "src/XData/xData.cpp" "run/runXDataTest.h" "run/runXDataTest.cpp" "src/MemoryProcessing/OpMalloc_CPU.h" "src/MemoryProcessing/OpMalloc_CPU.cpp")
+
+ "src/XData/xData.h" "src/XData/xData.cpp" "run/runXDataTest.h" "run/runXDataTest.cpp" 
+ "src/MemoryProcessing/OpMalloc_CPU.h" "src/MemoryProcessing/OpMalloc_CPU.cpp" 
+ "src/Arithmetic/arithmetic_YEqualsAMinusB.cpp" "src/Arithmetic/arithmetic_YEqualsAMinusB.h")
 
 target_include_directories(Geotime 
 PRIVATE "./"

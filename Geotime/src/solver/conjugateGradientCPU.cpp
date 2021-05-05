@@ -1,5 +1,6 @@
 #include <string.h>
 #include <math.h>
+#include <vector>
 #include <utils.h>
 #include <OpDotCPU.h>
 #include <OpMemCpyCPU.h>
@@ -80,7 +81,7 @@ int ConjugateGradientCPU::setCallback(ConjugateGradientCallBack* callBack)
 }
 
 
-double ConjugateGradientCPU::dot(void* f, long size, void* g)
+double ConjugateGradientCPU::dot(void* f, size_t size, void* g)
 {
 	return OpDotCPU::dot(f, size, g, dataFormat);
 	return 0.0;
@@ -109,7 +110,7 @@ int ConjugateGradientCPU::run()
 	db = dot(rhs, size0, rhs);
 	opMemCpy(param->r, rhs, size0, dataFormat);
 	callBack->f(x, param->tmp);
-	opYMinusEqualsX_CPU(param->r, param->tmp, size0, dataFormat);
+	Arithmetic_YEqualsAMinusB(param->r, size0, param->r, param->tmp, dataFormat);
 	callBack->Preconditionner(param->r, param->z);
 	rho0 = dot(param->r, size0, param->z);
 

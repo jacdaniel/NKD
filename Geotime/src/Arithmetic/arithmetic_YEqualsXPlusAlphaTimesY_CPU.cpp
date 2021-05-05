@@ -1,7 +1,11 @@
 
 #include <utils.h>
 #include <vector>
+<<<<<<< HEAD
 #include <XDATA.h>
+=======
+#include <XData.h>
+>>>>>>> e381ca5... Initial commit
 #include <arithmetic_YEqualsXPlusAlphaTimesY_CPU.h>
 
 
