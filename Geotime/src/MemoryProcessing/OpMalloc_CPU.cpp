@@ -34,15 +34,14 @@ int OpMallocLike(void** ptr, void* model, size_t size0,  int dataFormat)
 	}
 	case FORMAT_ARRAY_XDATA:
 	{
-		std::vector<void*> v;
+		*ptr = new std::vector<void*>();
 		std::vector<void*>* vmodel = (std::vector<void*>*)model;
 		for (int i = 0; i < vmodel->size(); i++)
 		{
 			void* data = nullptr;
-			OpMallocLike(&data, (*vmodel)[i], 0, 0);
-			v.push_back(data);
+			OpMallocLike(&data, (*vmodel)[i], 0, FORMAT_XDATA);
+			((std::vector<void*>*)(*ptr))->push_back(data);
 		}
-		*ptr = &v;
 		return SUCCESS;
 		break;
 	}

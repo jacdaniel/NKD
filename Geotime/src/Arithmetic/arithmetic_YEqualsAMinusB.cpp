@@ -1,5 +1,5 @@
 
-
+#include <vector>
 #include <utils.h>
 #include <xData.h>
 #include <arithmetic_YEqualsAMinusB.h>
@@ -38,6 +38,13 @@ int Arithmetic_YEqualsAMinusB(void* y, size_t size, void* A, void* B, int dataFo
 		break;
 	case FORMAT_ARRAY_XDATA:
 	{
+		std::vector<void*>* py = (std::vector<void*>*)y;
+		std::vector<void*>* pA = (std::vector<void*>*)A;
+		std::vector<void*>* pB = (std::vector<void*>*)B;
+		for (int i = 0; i < py->size(); i++)
+		{
+			Arithmetic_YEqualsAMinusB(xDataGetData((*py)[i]), 0, xDataGetData((*pA)[i]), xDataGetData((*pB)[i]), FORMAT_XDATA);
+		}
 	}
 	return SUCCESS;
 	break;

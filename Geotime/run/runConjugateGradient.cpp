@@ -1,13 +1,10 @@
 
 #include <stdio.h>
 #include <string.h>
-<<<<<<< HEAD
 #include <utils.h>
-=======
 #include <vector>
 #include <utils.h>
 #include <xData.h>
->>>>>>> e381ca5... Initial commit
 #include <utilDisplay.h>
 #include <conjugateGradient.h>
 #include <runConjugateGradient.h>
@@ -21,104 +18,95 @@ public:
 	~CALLBACK();
 	virtual int f(void* in, void* out);
 	virtual int Preconditionner(void* in, void* out);
-
 	void setSize(size_t size);
-<<<<<<< HEAD
-private:
-	size_t size0;
-	int* size;
-=======
 	void setDataFormat(int dataFormat);
 
 private:
 	size_t size0;
 	int* size;
 	int dataFormat;
->>>>>>> e381ca5... Initial commit
 };
 CALLBACK::CALLBACK(){}
 CALLBACK::~CALLBACK() {}
 
-<<<<<<< HEAD
-int CALLBACK::f(void* in, void* out)
-{
-	double* pin = (double*)in;
-	double* pout = (double*)out;
 
-	pout[0] = 283.0 * pin[0] + 368.0 * pin[1] + 318.0 * pin[2];
-	pout[1] = 368.0 * pin[0] + 480.0 * pin[1] + 412.0 * pin[2];
-	pout[2] = 318.0 * pin[0] + 412.0 * pin[1] + 362.0 * pin[2];
-
-=======
 static void genericCallBack(void* f, int size, void* g, int dataFormat)
 {
-	if (dataFormat == FORMAT_FLOAT32)
+	switch (dataFormat)
 	{
-		float* pin = (float*)f;
-		float* pout = (float*)g;
-		pout[0] = 283.0 * pin[0] + 368.0 * pin[1] + 318.0 * pin[2];
-		pout[1] = 368.0 * pin[0] + 480.0 * pin[1] + 412.0 * pin[2];
-		pout[2] = 318.0 * pin[0] + 412.0 * pin[1] + 362.0 * pin[2];
-	}
-	else
-	{
-		double* pin = (double*)f;
-		double* pout = (double*)g;
-		pout[0] = 283.0 * pin[0] + 368.0 * pin[1] + 318.0 * pin[2];
-		pout[1] = 368.0 * pin[0] + 480.0 * pin[1] + 412.0 * pin[2];
-		pout[2] = 318.0 * pin[0] + 412.0 * pin[1] + 362.0 * pin[2];
+	 case FORMAT_FLOAT32:
+	 {
+		 float* pin = (float*)f;
+		 float* pout = (float*)g;
+		 pout[0] = 283.0 * pin[0] + 368.0 * pin[1] + 318.0 * pin[2];
+		 pout[1] = 368.0 * pin[0] + 480.0 * pin[1] + 412.0 * pin[2];
+		 pout[2] = 318.0 * pin[0] + 412.0 * pin[1] + 362.0 * pin[2];
+	 }
+	 break;
+	 case FORMAT_FLOAT64:
+	 {
+		 double* pin = (double*)f;
+		 double* pout = (double*)g;
+		 pout[0] = 283.0 * pin[0] + 368.0 * pin[1] + 318.0 * pin[2];
+		 pout[1] = 368.0 * pin[0] + 480.0 * pin[1] + 412.0 * pin[2];
+		 pout[2] = 318.0 * pin[0] + 412.0 * pin[1] + 362.0 * pin[2];
+	 }
+	 break;
+	 case FORMAT_XDATA:
+		 genericCallBack(xDataGetData(f), xDataGetSize0(f), xDataGetData(g), xDataGetDataFormat(f));
+		 break;
+	 case FORMAT_ARRAY_XDATA:
+	 {
+		 std::vector<void*>* pin = (std::vector<void*>*)f;
+		 std::vector<void*>* pout = (std::vector<void*>*)g;
+		 for (int i = 0; i < pin->size(); i++)
+		 {
+			 genericCallBack((*pin)[i], 0, (*pout)[i], FORMAT_XDATA);
+		 }
+		 break;
+	 }
 	}
 }
 
 static void genericPreconditionner(void* f, int size, void* g, int dataFormat)
 {
-	if (dataFormat == FORMAT_FLOAT32)
+	switch (dataFormat)
 	{
-		memcpy(g, f, size * sizeof(float));
+	case FORMAT_FLOAT32: memcpy(g, f, size * sizeof(float)); break;
+	case FORMAT_FLOAT64: memcpy(g, f, size * sizeof(double)); break;
+	case FORMAT_XDATA:
+	{
+		void* in = xDataGetData(f);
+		void* out = xDataGetData(g);
+		int size = xDataGetSize0(f);
+		int dataFormat = xDataGetDataFormat(f);
+		genericPreconditionner(in, size, out, dataFormat);
 	}
-	else
+	break;
+	case FORMAT_ARRAY_XDATA:
 	{
-		memcpy(g, f, size * sizeof(double));
+		std::vector<void*>* pin = (std::vector<void*>*)f;
+		std::vector<void*>* pout = (std::vector<void*>*)g;
+		for (int i = 0; i < pin->size(); i++)
+		{
+			genericPreconditionner((*pin)[i], 0, (*pout)[i], FORMAT_XDATA);
+		}
+	}
+	break;
 	}
 }
 
 
+
 int CALLBACK::f(void* in, void* out)
 {
-	if (dataFormat == FORMAT_FLOAT32 || dataFormat == FORMAT_FLOAT64)
-	{
-		genericCallBack(in, size0, out, dataFormat);
-	}
-	else if (dataFormat == FORMAT_XDATA)
-	{
-		void* f = xDataGetData(in);
-		void* g = xDataGetData(out);
-		int size = xDataGetSize0(in);
-		int dataFormat = xDataGetDataFormat(in);
-		genericCallBack(f, size, g, dataFormat);
-	}
->>>>>>> e381ca5... Initial commit
+	genericCallBack(in, size0, out, dataFormat);
 	return SUCCESS;
 }
 
 int CALLBACK::Preconditionner(void* in, void* out)
 {
-<<<<<<< HEAD
-	memcpy(out, in, size0 * sizeof(double));
-=======
-	if (dataFormat == FORMAT_FLOAT32 || dataFormat == FORMAT_FLOAT64)
-	{
-		genericPreconditionner(in, size0, out, dataFormat);
-	}
-	else if (dataFormat == FORMAT_XDATA)
-	{
-		void* f = xDataGetData(in);
-		void* g = xDataGetData(out);
-		int size = xDataGetSize0(in);
-		int dataFormat = xDataGetDataFormat(in);
-		genericPreconditionner(f, size, g, dataFormat);
-	}
->>>>>>> e381ca5... Initial commit
+	genericPreconditionner(in, size0, out, dataFormat);
 	return SUCCESS;
 }
 
@@ -127,14 +115,7 @@ void CALLBACK::setSize(size_t size)
 	this->size0 = size;
 }
 
-<<<<<<< HEAD
 
-
-
-
-int runConjugateGradient(int argc, char** argv)
-{
-=======
 void CALLBACK::setDataFormat(int dataFormat)
 {
 	this->dataFormat = dataFormat;
@@ -193,26 +174,65 @@ int runConjugateGradient(int argc, char** argv)
 	std::vector<void*> vrhs;
 	std::vector<void*> vx;
 
+	double rhs_1[] = { 4880.0, 6344.0, 5504.0 };
+	double x_1[] = { 0.0, 0.0, 0.0 };
+	int size_1[] = { 3, 1, 1 };
+	int dataFormat_1 = FORMAT_FLOAT64;
 
-	double rhs[] = { 4880.0, 6344.0, 5504.0 };
-	double x[] = { 0.0, 0.0, 0.0 };
-	int size[] = { 3, 1, 1 };
-	int dataFormat = FORMAT_FLOAT64;
+	double rhs_2[] = { 7787, 10124, 8780 };
+	double x_2[] = { 0.0, 0.0, 0.0 };
+	int size_2[] = { 3, 1, 1 };
+	int dataFormat_2 = FORMAT_FLOAT64;
 
-	void* x_rhs = nullptr;
-	xDataInit((void**)&x_rhs);
-	xDataSetData(x_rhs, rhs);
-	xDataSetSize(x_rhs, size);
-	xDataSetDataFormat(x_rhs, dataFormat);
+	float rhs_3[] = { 10694, 13904, 12056 };
+	float x_3[] = { 0.0, 0.0, 0.0 };
+	int size_3[] = { 3, 1, 1 };
+	int dataFormat_3 = FORMAT_FLOAT32;
 
-	void* x_x = nullptr;
-	xDataInit((void**)&x_x);
-	xDataSetData(x_x, x);
-	xDataSetSize(x_x, size);
-	xDataSetDataFormat(x_x, dataFormat);
 
-	vrhs.push_back(x_rhs);
-	vx.push_back(x_x);
+	void* x_rhs_1 = nullptr;
+	xDataInit((void**)&x_rhs_1);
+	xDataSetData(x_rhs_1, rhs_1);
+	xDataSetSize(x_rhs_1, size_1);
+	xDataSetDataFormat(x_rhs_1, dataFormat_1);
+
+	void* x_x_1 = nullptr;
+	xDataInit((void**)&x_x_1);
+	xDataSetData(x_x_1, x_1);
+	xDataSetSize(x_x_1, size_1);
+	xDataSetDataFormat(x_x_1, dataFormat_1);
+
+	void* x_rhs_2 = nullptr;
+	xDataInit((void**)&x_rhs_2);
+	xDataSetData(x_rhs_2, rhs_2);
+	xDataSetSize(x_rhs_2, size_2);
+	xDataSetDataFormat(x_rhs_2, dataFormat_2);
+
+	void* x_x_2 = nullptr;
+	xDataInit((void**)&x_x_2);
+	xDataSetData(x_x_2, x_2);
+	xDataSetSize(x_x_2, size_2);
+	xDataSetDataFormat(x_x_2, dataFormat_2);
+
+	void* x_rhs_3 = nullptr;
+	xDataInit((void**)&x_rhs_3);
+	xDataSetData(x_rhs_3, rhs_3);
+	xDataSetSize(x_rhs_3, size_3);
+	xDataSetDataFormat(x_rhs_3, dataFormat_3);
+
+	void* x_x_3 = nullptr;
+	xDataInit((void**)&x_x_3);
+	xDataSetData(x_x_3, x_3);
+	xDataSetSize(x_x_3, size_3);
+	xDataSetDataFormat(x_x_3, dataFormat_3);
+
+	vrhs.push_back(x_rhs_1);
+	vrhs.push_back(x_rhs_2);
+	vrhs.push_back(x_rhs_3);
+	vx.push_back(x_x_1);
+	vx.push_back(x_x_2);
+	vx.push_back(x_x_3);
+
 
 	CALLBACK* callBack = new CALLBACK();
 	callBack->setSize(3);
@@ -235,15 +255,15 @@ int runConjugateGradient(int argc, char** argv)
 
 
 
-int runConjugateGradient0(int argc, char** argv)
+int runConjugateGradient_1(int argc, char** argv)
 {
->>>>>>> e381ca5... Initial commit
 	double rhs[] = { 4880.0, 6344.0, 5504.0 };
 	double x[] = { 0.0, 0.0, 0.0 };
 	int dataFormat = FORMAT_FLOAT64;
 
 	CALLBACK* callBack = new CALLBACK();
 	callBack->setSize(3);
+	callBack->setDataFormat(dataFormat);
 
 	ConjugateGradient* cg = new ConjugateGradient();
 	cg->setProcessingMode(PROCESSING_MODE_CPU);

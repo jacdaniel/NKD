@@ -69,24 +69,3 @@ int opMemCpyCHS(void* dst, void* src, size_t size, int dataFormat)
 
 
 
-<<<<<<< HEAD
-template <typename T> int opYMinusEqualsX(T* y, T* x, size_t size)
-{
-	for (size_t add = 0; add < size; add++)
-		y[add] -= x[add];
-	return SUCCESS;
-}
-
-int opYMinusEqualsX_CPU(void* y, void* x, size_t size, int dataFormat)
-{
-	switch (dataFormat)
-	{
-		case FORMAT_FLOAT32: return opYMinusEqualsX<float>((float*)y, (float*)x, size); break;
-		case FORMAT_FLOAT64: return opYMinusEqualsX<double>((double*)y, (double*)x, size); break;
-	}
-	return FAIL;
-}
-
-
-=======
->>>>>>> e381ca5... Initial commit

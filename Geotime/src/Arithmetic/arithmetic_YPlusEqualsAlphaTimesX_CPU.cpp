@@ -42,7 +42,7 @@ int Arithmetic_YPlusEqualsAlphaTimesX_CPU(void* y, size_t size, double alpha, vo
 		std::vector<void*>* vx = (std::vector<void*>*)x;
 		for (int i = 0; i < vy->size(); i++)
 		{
-			Arithmetic_YPlusEqualsAlphaTimesX_CPU((*vy)[i], (size_t)xDataGetSize((*vy)[i]), alpha, (*vx)[i], 0);
+			Arithmetic_YPlusEqualsAlphaTimesX_CPU((*vy)[i], (size_t)xDataGetSize((*vy)[i]), alpha, (*vx)[i], FORMAT_XDATA);
 		}
 		return SUCCESS;
 		break;

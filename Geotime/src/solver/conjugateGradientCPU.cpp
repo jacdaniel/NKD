@@ -2,6 +2,8 @@
 #include <math.h>
 #include <vector>
 #include <utils.h>
+#include <xData.h>
+#include <utilDisplay.h>
 #include <OpDotCPU.h>
 #include <OpMemCpyCPU.h>
 #include <arithmetic.h>
@@ -106,7 +108,7 @@ int ConjugateGradientCPU::run()
 	double alphax = 1.0;
 
 	if (param == nullptr) paramInit();
-
+	
 	db = dot(rhs, size0, rhs);
 	opMemCpy(param->r, rhs, size0, dataFormat);
 	callBack->f(x, param->tmp);
@@ -134,7 +136,6 @@ int ConjugateGradientCPU::run()
 		{
 			Arithmetic_YPlusEqualsAlphaTimesX_CPU(x, size0, alphax, param->d, dataFormat);
 			Arithmetic_YMinusEqualsAlphaTimesX_CPU(param->r, size0, alphax, param->tmp, dataFormat);
-
 			callBack->Preconditionner(param->r, param->z);
 			rho1 = rho0;
 			rho0 = dot(param->r, size0, param->z);
