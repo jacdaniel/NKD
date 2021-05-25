@@ -23,6 +23,11 @@ enable_language(CUDA)
 # add_definitions("--std=c++11")
 set (CMAKE_CXX_STANDARD 11)
 
+# add_definitions(-DCWTENABLE)
+# add_compile_definitions(CWTENABLE)
+
+
+
 
 # Ajoutez une source à l'exécutable de ce projet.
 add_executable (
@@ -58,7 +63,10 @@ Geotime
  "src/Arithmetic/arithmetic_YEqualsXPlusAlphaTimesY_CPU.cpp" 
  "src/XData/xData.h" "src/XData/xData.cpp" "run/runXDataTest.h" "run/runXDataTest.cpp" 
  "src/MemoryProcessing/OpMalloc_CPU.h" "src/MemoryProcessing/OpMalloc_CPU.cpp" 
- "src/Arithmetic/arithmetic_YEqualsAMinusB.cpp" "src/Arithmetic/arithmetic_YEqualsAMinusB.h")
+ "src/Arithmetic/arithmetic_YEqualsAMinusB.cpp" "src/Arithmetic/arithmetic_YEqualsAMinusB.h" 
+ "src/FileIO/fileio2.h" "src/FileIO/fileio2.cpp" 
+ "src/FileIO/xt_file.h" "src/FileIO/xt_file.cpp" 
+ "src/FileIO/cwt_file.cpp" "src/FileIO/cwt_file.h" "run/runFileIO.h" "run/runFileIO.cpp" "src/Utils/seismicPolarity.h" "src/Utils/seismicPolarity.cpp" "run/runSurfaceStacking.cpp" "run/runSurfaceStacking.h" "src/SignalProcessing/BlockProc.h" "src/SignalProcessing/BlockProc.cpp" "run/runBlockProc.h" "run/runBlockProc.cpp" "src/SignalProcessing/DataExtract.cpp" "src/SignalProcessing/DataExtract.h" "src/SignalProcessing/DataInsert.cpp" "src/SignalProcessing/DataInsert.h")
 
 
 target_include_directories(Geotime 
@@ -72,6 +80,7 @@ PRIVATE "./src/SurfaceStacking"
 PRIVATE "./src/Arithmetic"
 PRIVATE "./src/XData"
 PRIVATE "./src/MemoryProcessing"
+PRIVATE "./src/FileIO"
 PRIVATE "D:/JACK2/DEV/C/NKDEEP/Geotime/lib")
 
 message("-- Linking SDL ")
@@ -80,6 +89,8 @@ set(OpenMP_CXX_FLAGS "-Xclang -fopenmp")
 target_link_directories(Geotime PRIVATE "./lib") 
 target_link_libraries(Geotime PRIVATE libfftw3-3)
 target_link_libraries(Geotime PRIVATE libfftw3f-3)
+
+
 # target_link_libraries(Geotime PUBLIC libopm)
 # target_link_libraries(Geotime PUBLIC libomp5)
 

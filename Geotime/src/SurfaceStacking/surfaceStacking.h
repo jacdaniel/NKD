@@ -1,16 +1,48 @@
 #ifndef __SURFACESTACKING__
 #define __SURFACESTACKING__
 
-int surfaceStackingInit(void** p);
-int surfaceStackingRelease(void** _p);
+class SurfaceStacking
+{
+	class PARAM
+	{
+	public:
+		PARAM();
+		~PARAM();
+		int* xc;
+		void* vc;
+	};
 
-int surfaceStackingSetSize(void* _p, int* size);
-int surfaceStackingSetStack(void* p, void* stack);
-int surfaceStackingSetStackFormat(void* _p, int format);
-int surfaceStackingSetSurface(void* _p, void* surface);
-int surfaceStackingSetSurfaceFormat(void* _p, int format);
+private:
+	int size[3];
+	int stackDataFormat;
+	int surfaceDataFormat;
+	void* stack;
+	void* surface;
+	PARAM* param;
 
-int surfaceStackingRun(void* _p);
+	void initParam();
+	int surfaceStackingInitValues();
+	bool isValidStacking();
+	int surfaceStakingSetValues();
+
+	template<typename Tsurface, typename Tstack> int surfaceStackingInitValuesTemplate();
+	template<typename T> bool isValidStackingTemplate(T vmax);
+	template<typename T> int surfaceStakingSetValuesTemplate();
+
+
+
+
+public:
+	SurfaceStacking();
+	~SurfaceStacking();
+	int setSize(int* size);
+	int setStack(void *stack);
+	int setStackFormat(int dataFormat);
+	int setSurface(void* surface);
+	int setSurfaceFormat(int dataFormat);
+	int run();
+};
+
 
 
 #endif

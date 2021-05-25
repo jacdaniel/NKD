@@ -22,11 +22,20 @@ void UtilDisplay::display(float* data, long nbre)
 	}
 }
 
+void UtilDisplay::display(short* data, long nbre)
+{
+	for (long i = 0; i < nbre; i++)
+	{
+		fprintf(stderr, "[%d] %d\n", i, data[i]);
+	}
+}
+
 
 void UtilDisplay::display(void* data, long size, int dataFormat)
 {
 	switch (dataFormat)
 	{
+		case FORMAT_INT16:  display((short*)data, size); break;
 		case FORMAT_FLOAT32:  display((float*)data, size); break;
 		case FORMAT_FLOAT64:  display((double*)data, size); break;
 		case FORMAT_XDATA:   display((void*)xDataGetData(data), xDataGetSize0(data), xDataGetDataFormat(data)); break;

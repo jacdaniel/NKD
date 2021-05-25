@@ -21,102 +21,169 @@ typedef struct _SURFACESTACKING
 	SURFACESTACKINGPARAM *param;
 }SURFACESTACKING;
 
-int surfaceStackingInit(void** p)
+SurfaceStacking::PARAM::PARAM()
 {
-	if (p == nullptr) return FAIL;
-	if (callocSafe(p, 1, sizeof(SURFACESTACKING)) != CALLOC_SUCCESS) return FAIL;
 
-	return SUCCESS;
 }
 
-int surfaceStackingRelease(void** _p)
+SurfaceStacking::PARAM::~PARAM()
 {
-	return SUCCESS;
+
 }
 
-int surfaceStackingSetSize(void* _p, int* size)
+
+SurfaceStacking::SurfaceStacking()
 {
-	if (_p == nullptr) return FAIL;
+	param = nullptr;
+}
+
+SurfaceStacking::~SurfaceStacking()
+{
+}
+
+int SurfaceStacking::setSize(int* size)
+{	
 	for (int i = 0; i < 3; i++)
-		((SURFACESTACKING*)_p)->size[i] = size[i];
+		this->size[i] = size[i];
 	return SUCCESS;
 }
 
-int surfaceStackingSetStack(void* p, void* stack)
+int SurfaceStacking::setStack(void* stack)
 {
-	if (p == nullptr) return FAIL;
-	((SURFACESTACKING*)p)->stack = stack;
+	this->stack = stack;
 	return SUCCESS;
 }
 
-int surfaceStackingSetStackFormat(void* _p, int format)
+int SurfaceStacking::setStackFormat(int dataFormat)
 {
-	if (_p == nullptr) return FAIL;
-	((SURFACESTACKING*)_p)->stackFormat = format;
+	this->stackDataFormat = dataFormat;
 	return SUCCESS;
 }
 
-int surfaceStackingSetSurface(void* _p, void* surface)
+int SurfaceStacking::setSurface(void* surface)
 {
-	if (_p == nullptr) return FAIL;
-	((SURFACESTACKING*)_p)->surface = surface;
+	this->surface = surface;
 	return SUCCESS;
 }
 
-int surfaceStackingSetSurfaceFormat(void* _p, int format)
+int SurfaceStacking::setSurfaceFormat(int dataFormat)
 {
-	if (_p == nullptr) return FAIL;
-	((SURFACESTACKING*)_p)->surfaceFormat = format;
+	this->surfaceDataFormat = dataFormat;
 	return SUCCESS;
 }
 
 
-static int surfaceStackingGetXc(short *stack, float *surface, int* size, int * xc, short *v)
+void SurfaceStacking::initParam()
 {
-	for (int z=0; z<size[2]; z++)
+	size_t size0 = size[1] * size[2];
+	this->param = new PARAM();
+	this->param->xc = new int[size0];
+	switch (stackDataFormat)
+	{
+	case FORMAT_INT16: param->vc = new short[size0]; break;
+	case FORMAT_FLOAT32: param->vc = new float[size0]; break;
+	}
+}
+
+
+// TODO
+
+template<typename Tsurface, typename Tstack> int SurfaceStacking::surfaceStackingInitValuesTemplate()
+{
+	for (int z = 0; z < size[2]; z++)
 		for (int y = 0; y < size[1]; y++)
 		{
-			int x0 = surface[z * size[1] + y];
+			int x0 = (int)floor(((Tsurface*)surface)[z * size[1] + y] + .5);
 			x0 = MIN(MAX(x0, 0), size[0] - 1);
-			xc[z * size[1] + y] = x0;
-			v[z * size[1] + y] = stack[z * size[0] * size[1] + y * size[0] + x0];
+			param->xc[z * size[1] + y] = x0;
+			((Tstack*)param->vc)[z * size[1] + y] = ((Tstack*)stack)[z * size[0] * size[1] + y * size[0] + x0];
 		}
 	return SUCCESS;
 }
 
-static int surfaceStackValidStacking(short* v, long size0)
+int SurfaceStacking::surfaceStackingInitValues()
 {
-	for (long add = 0; add < size0; add++)
+	switch (surfaceDataFormat)
 	{
-		if (v[add] > 32000) return FAIL;
-		v[add] += 1;
+		case FORMAT_INT16: 
+			if ( stackDataFormat == FORMAT_INT16 ) surfaceStackingInitValuesTemplate<short, short>();
+			else if (stackDataFormat == FORMAT_FLOAT32 ) surfaceStackingInitValuesTemplate<short, float>();
+			break;
+		case FORMAT_FLOAT32: 
+			if (stackDataFormat == FORMAT_INT16) surfaceStackingInitValuesTemplate<float, short>();
+			else if (stackDataFormat == FORMAT_FLOAT32) surfaceStackingInitValuesTemplate<float, float>();
+			break;
+		case FORMAT_FLOAT64:
+			if (stackDataFormat == FORMAT_INT16) surfaceStackingInitValuesTemplate<double, short>();
+			else if (stackDataFormat == FORMAT_FLOAT32) surfaceStackingInitValuesTemplate<double, float>();
+			break;
+	}	
+	return SUCCESS;
+}
+
+template<typename T> bool SurfaceStacking::isValidStackingTemplate(T vmax)
+{
+	size_t size00 = (size_t)size[1] * size[2];
+	for (size_t add = 0; add < size00; add++)
+	{
+		if (((T*)param->vc)[add] >= vmax) return false;
+	}
+	return true;
+}
+
+bool SurfaceStacking::isValidStacking()
+{
+	switch (stackDataFormat)
+	{
+	case FORMAT_INT16: return isValidStackingTemplate<short>(32000); break;
+	case FORMAT_FLOAT32:
+	case FORMAT_FLOAT64:
+		return true;
+		break;
+	}
+	return false;
+}
+
+template<typename T> int SurfaceStacking::surfaceStakingSetValuesTemplate()
+{
+	for (int z = 0; z < size[2]; z++)
+		for (int y = 0; y < size[1]; y++)
+		{
+			size_t add0 = z * size[1] + y;
+			((T*)stack)[add0 * size[0] + param->xc[add0]] = ((T*)param->vc)[add0] + (T)1;
+		}
+	return SUCCESS;
+}
+
+int SurfaceStacking::surfaceStakingSetValues()
+{
+	switch (stackDataFormat)
+	{
+	case FORMAT_INT16:
+		surfaceStakingSetValuesTemplate<short>();
+		break;
+	case FORMAT_FLOAT32:
+		surfaceStakingSetValuesTemplate<float>();
+		break;
 	}
 	return SUCCESS;
 }
 
-static int surfaceStackingSetXc(short* stack, int* size, int* xc, short* v)
-{
-	for (int z = 0; z < size[2]; z++)
-		for (int y = 0; y < size[1]; y++)
-			stack[z * size[0] * size[1] + y * size[0] + xc[z * size[1] + y]] = v[z * size[1] + y];
-	return SUCCESS;
-}
 
-static int surfaceStackingStack(short* stack, int* size, float* surface, int *xc, short *v)
+
+int SurfaceStacking::run()
 {
-	surfaceStackingGetXc(stack, surface, size, xc, v);
-	if (surfaceStackValidStacking(v, size[1] * size[2]) == FAIL)
-		return FAIL;
-	surfaceStackingSetXc(stack, size, xc, v);
-	return SUCCESS;
+	if (param == nullptr) initParam();
+	surfaceStackingInitValues();
+	if (isValidStacking())
+	{
+		surfaceStakingSetValues();
+		return SUCCESS;
+	}
+	return FAIL;
 }
 
 
 
-int surfaceStackingRun(void* _p)
-{
-	SURFACESTACKING* p = (SURFACESTACKING*)_p;
-	return surfaceStackingStack((short*)p->stack, p->size, (float*)p->surface, p->param->xc, p->param->v);
-}
 
 

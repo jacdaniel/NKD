@@ -26,6 +26,7 @@ private:
 	int* size;
 	int dataFormat;
 };
+
 CALLBACK::CALLBACK(){}
 CALLBACK::~CALLBACK() {}
 

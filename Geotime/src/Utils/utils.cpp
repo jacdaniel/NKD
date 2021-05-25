@@ -39,6 +39,30 @@ int callocSafe_(void**ptr, long size, long _sizeof, char *file, long line)
 }
 
 
+int callocSafeFormat_(void** ptr, size_t size, int dataFormat, char *file, long line)
+{
+	return callocSafe_(ptr, size, getSizeofFromFormat(dataFormat), file, line);
+}
+
+
+size_t getSizeofFromFormat(int dataFormat)
+{
+	switch (dataFormat)
+	{
+	case FORMAT_CHAR: return sizeof(char); break;
+	case FORMAT_UCHAR: return sizeof(unsigned char); break;
+	case FORMAT_INT16: return sizeof(short); break;
+	case FORMAT_UINT16: return sizeof(unsigned short); break;
+	case FORMAT_INT32: return sizeof(int); break;
+	case FORMAT_UINT32: return sizeof(unsigned int); break;
+	case FORMAT_INT64: return sizeof(long); break;
+	case FORMAT_UINT64: return sizeof(unsigned long); break;
+	case FORMAT_FLOAT32: return sizeof(float); break;
+	case FORMAT_FLOAT64: return sizeof(double); break;
+	default: return 0; break;
+	}
+
+}
 
 int getDimsFromSize(int* size)
 {
